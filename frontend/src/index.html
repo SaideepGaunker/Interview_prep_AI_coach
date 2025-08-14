@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="interviewPrepApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Prep AI Coach</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body ng-controller="MainController as vm">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#!/">Interview Prep AI Coach</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <!-- Authenticated User Navigation -->
+                    <li class="nav-item" ng-if="vm.isAuthenticated()">
+                        <a class="nav-link" href="#!/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item" ng-if="vm.isAuthenticated()">
+                        <a class="nav-link" href="#!/interview">Practice</a>
+                    </li>
+                    <li class="nav-item" ng-if="vm.isAuthenticated()">
+                        <a class="nav-link" href="#!/progress">Progress</a>
+                    </li>
+                    <li class="nav-item" ng-if="vm.isAuthenticated()">
+                        <a class="nav-link" href="#!/profile">Profile</a>
+                    </li>
+                    <li class="nav-item" ng-if="vm.isAuthenticated()">
+                        <a class="nav-link" href="#" ng-click="vm.logout()">Logout</a>
+                    </li>
+                    
+                    <!-- Guest Navigation -->
+                    <li class="nav-item" ng-if="!vm.isAuthenticated()">
+                        <a class="nav-link" href="#!/login">Login</a>
+                    </li>
+                    <li class="nav-item" ng-if="!vm.isAuthenticated()">
+                        <a class="nav-link" href="#!/register">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div ng-view></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-lg-start mt-5">
+        <div class="text-center p-3">
+            © 2024 Interview Prep AI Coach. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-sanitize.min.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/controllers/main.controller.js"></script>
+    <script src="js/controllers/auth.controller.js"></script>
+    <script src="js/controllers/dashboard.controller.js"></script>
+    <script src="js/controllers/interview.controller.js"></script>
+    <script src="js/controllers/progress.controller.js"></script>
+    <script src="js/controllers/profile.controller.js"></script>
+    <script src="js/services/api.service.js"></script>
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/interview.service.js"></script>
+</body>
+</html>

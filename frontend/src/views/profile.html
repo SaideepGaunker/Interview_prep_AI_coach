@@ -1,0 +1,387 @@
+<!-- Profile Management Template -->
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="fw-bold mb-4">
+                <i class="fas fa-user me-2"></i>
+                Profile Settings
+            </h2>
+        </div>
+    </div>
+    
+    <!-- Error/Success Alerts -->
+    <div ng-if="vm.error" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{vm.error}}
+        <button type="button" class="btn-close" ng-click="vm.error = ''"></button>
+    </div>
+    
+    <div ng-if="vm.success" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        {{vm.success}}
+        <button type="button" class="btn-close" ng-click="vm.success = ''"></button>
+    </div>
+    
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="nav flex-column nav-pills">
+                        <button 
+                            class="nav-link text-start"
+                            ng-class="{'active': vm.activeTab === 'profile'}"
+                            ng-click="vm.setActiveTab('profile')">
+                            <i class="fas fa-user me-2"></i>
+                            Profile Information
+                        </button>
+                        <button 
+                            class="nav-link text-start"
+                            ng-class="{'active': vm.activeTab === 'password'}"
+                            ng-click="vm.setActiveTab('password')">
+                            <i class="fas fa-lock me-2"></i>
+                            Change Password
+                        </button>
+                        <button 
+                            class="nav-link text-start"
+                            ng-class="{'active': vm.activeTab === 'settings'}"
+                            ng-click="vm.setActiveTab('settings')">
+                            <i class="fas fa-cog me-2"></i>
+                            Settings
+                        </button>
+                        <button 
+                            class="nav-link text-start"
+                            ng-class="{'active': vm.activeTab === 'data'}"
+                            ng-click="vm.setActiveTab('data')">
+                            <i class="fas fa-download me-2"></i>
+                            Data & Privacy
+                        </button>
+                        
+                        <hr class="my-3">
+                        
+                        <button 
+                            class="nav-link text-start text-danger"
+                            ng-click="vm.logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Profile Information Tab -->
+            <div ng-if="vm.activeTab === 'profile'" class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Profile Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form ng-submit="vm.updateProfile()" novalidate>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Full Name *</label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        id="name"
+                                        ng-model="vm.profileForm.name"
+                                        required
+                                        ng-disabled="vm.saving">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input 
+                                        type="email" 
+                                        class="form-control" 
+                                        id="email"
+                                        value="{{vm.user.email}}"
+                                        disabled>
+                                    <div class="form-text">Email cannot be changed. Contact support if needed.</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="role" class="form-label">Role</label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        id="role"
+                                        value="{{vm.user.role | uppercase}}"
+                                        disabled>
+                                    <div class="form-text">Role cannot be changed after registration.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="experienceLevel" class="form-label">Experience Level</label>
+                                    <select 
+                                        class="form-select" 
+                                        id="experienceLevel"
+                                        ng-model="vm.profileForm.experience_level"
+                                        ng-disabled="vm.saving">
+                                        <option ng-repeat="level in vm.experienceLevels" value="{{level.value}}">
+                                            {{level.label}}
+                                        </option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Target Roles</label>
+                                    <div class="row">
+                                        <div class="col-12" ng-repeat="role in vm.targetRoleOptions">
+                                            <div class="form-check">
+                                                <input 
+                                                    class="form-check-input" 
+                                                    type="checkbox" 
+                                                    id="target_{{$index}}"
+                                                    ng-checked="vm.profileForm.target_roles.indexOf(role) > -1"
+                                                    ng-click="vm.toggleTargetRole(role)"
+                                                    ng-disabled="vm.saving">
+                                                <label class="form-check-label" for="target_{{$index}}">
+                                                    {{role}}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button 
+                                type="submit" 
+                                class="btn btn-primary"
+                                ng-disabled="vm.saving">
+                                <span ng-if="vm.saving">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    Saving...
+                                </span>
+                                <span ng-if="!vm.saving">
+                                    <i class="fas fa-save me-2"></i>
+                                    Save Changes
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Change Password Tab -->
+            <div ng-if="vm.activeTab === 'password'" class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lock me-2"></i>
+                        Change Password
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form ng-submit="vm.changePassword()" novalidate>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="oldPassword" class="form-label">Current Password *</label>
+                                    <input 
+                                        type="password" 
+                                        class="form-control" 
+                                        id="oldPassword"
+                                        ng-model="vm.passwordForm.old_password"
+                                        required
+                                        ng-disabled="vm.saving">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">New Password *</label>
+                                    <input 
+                                        type="password" 
+                                        class="form-control" 
+                                        id="newPassword"
+                                        ng-model="vm.passwordForm.new_password"
+                                        required
+                                        ng-disabled="vm.saving">
+                                    <div class="form-text">
+                                        Must be at least 8 characters with uppercase, lowercase, and number
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label">Confirm New Password *</label>
+                                    <input 
+                                        type="password" 
+                                        class="form-control" 
+                                        id="confirmPassword"
+                                        ng-model="vm.passwordForm.confirm_password"
+                                        required
+                                        ng-disabled="vm.saving">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-info-circle me-2"></i>Password Requirements</h6>
+                                    <ul class="mb-0">
+                                        <li>At least 8 characters long</li>
+                                        <li>Contains uppercase letter (A-Z)</li>
+                                        <li>Contains lowercase letter (a-z)</li>
+                                        <li>Contains at least one number (0-9)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button 
+                                type="submit" 
+                                class="btn btn-primary"
+                                ng-disabled="vm.saving">
+                                <span ng-if="vm.saving">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    Changing...
+                                </span>
+                                <span ng-if="!vm.saving">
+                                    <i class="fas fa-key me-2"></i>
+                                    Change Password
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div ng-if="vm.activeTab === 'settings'" class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>
+                        Settings & Preferences
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form ng-submit="vm.updateSettings()" novalidate>
+                        <h6 class="mb-3">Notifications</h6>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    id="emailNotifications"
+                                    ng-model="vm.settingsForm.email_notifications"
+                                    ng-disabled="vm.saving">
+                                <label class="form-check-label" for="emailNotifications">
+                                    Email notifications for session reminders and progress updates
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h6 class="mb-3">Privacy</h6>
+                        <div class="mb-3">
+                            <label for="profileVisibility" class="form-label">Profile Visibility</label>
+                            <select 
+                                class="form-select" 
+                                id="profileVisibility"
+                                ng-model="vm.settingsForm.privacy_settings.profile_visibility"
+                                ng-disabled="vm.saving">
+                                <option value="private">Private</option>
+                                <option value="public">Public</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    id="dataSharing"
+                                    ng-model="vm.settingsForm.privacy_settings.data_sharing"
+                                    ng-disabled="vm.saving">
+                                <label class="form-check-label" for="dataSharing">
+                                    Allow anonymous data sharing for platform improvement
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button 
+                                type="submit" 
+                                class="btn btn-primary"
+                                ng-disabled="vm.saving">
+                                <span ng-if="vm.saving">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    Saving...
+                                </span>
+                                <span ng-if="!vm.saving">
+                                    <i class="fas fa-save me-2"></i>
+                                    Save Settings
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Data & Privacy Tab -->
+            <div ng-if="vm.activeTab === 'data'" class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-download me-2"></i>
+                        Data & Privacy
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Export Your Data</h6>
+                            <p class="text-muted">
+                                Download all your data including interview sessions, performance metrics, and progress tracking.
+                            </p>
+                            <button 
+                                class="btn btn-outline-primary"
+                                ng-click="vm.exportData()"
+                                ng-disabled="vm.loading">
+                                <span ng-if="vm.loading">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    Exporting...
+                                </span>
+                                <span ng-if="!vm.loading">
+                                    <i class="fas fa-download me-2"></i>
+                                    Export Data
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="text-danger">Delete Account</h6>
+                            <p class="text-muted">
+                                Permanently delete your account and all associated data. This action cannot be undone.
+                            </p>
+                            <button 
+                                class="btn btn-outline-danger"
+                                ng-click="vm.deleteAccount()"
+                                ng-disabled="vm.loading">
+                                <i class="fas fa-trash me-2"></i>
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-shield-alt me-2"></i>Your Privacy Matters</h6>
+                        <p class="mb-0">
+                            We are committed to protecting your privacy. Your interview data is encrypted and used only to provide personalized feedback and track your progress. We never share your personal information with third parties without your explicit consent.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

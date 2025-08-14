@@ -1,0 +1,70 @@
+<!-- Home Page Template -->
+<div class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold">{{vm.title}}</h1>
+                <p class="lead">{{vm.subtitle}}</p>
+                <p class="mb-4">
+                    Prepare for your dream job with our AI-powered interview coaching platform. 
+                    Get personalized feedback, practice with realistic scenarios, and track your progress.
+                </p>
+                <div class="d-flex gap-3">
+                    <button class="btn btn-light btn-lg" ng-click="vm.getStarted()">
+                        Get Started
+                    </button>
+                    <button class="btn btn-outline-light btn-lg" ng-click="vm.startPractice()">
+                        Start Practice
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <i class="fas fa-user-tie fa-10x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 text-center mb-5">
+            <h2 class="display-5 fw-bold">Why Choose Our Platform?</h2>
+            <p class="lead text-muted">Advanced AI technology meets personalized coaching</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3" ng-repeat="feature in vm.features">
+            <div class="card h-100 text-center border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <i class="{{feature.icon}} fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">{{feature.title}}</h5>
+                    <p class="card-text text-muted">{{feature.description}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h3 class="mb-4">Ready to Ace Your Next Interview?</h3>
+                <p class="lead mb-4">Join thousands of successful candidates who improved their interview skills with our platform.</p>
+                <button class="btn btn-primary btn-lg" ng-click="vm.getStarted()">
+                    Start Your Journey
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

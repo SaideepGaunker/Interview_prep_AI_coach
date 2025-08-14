@@ -1,0 +1,500 @@
+<!-- Interview Session Template -->
+<div class="container-fluid py-4" ng-controller="InterviewController as vm">
+    
+    <!-- Setup Step -->
+    <div ng-if="vm.currentStep === 'setup'" class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-custom">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>
+                        Interview Setup
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Error/Success Alerts -->
+                    <div ng-if="vm.error" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{vm.error}}
+                        <button type="button" class="btn-close" ng-click="vm.error = ''"></button>
+                    </div>
+                    
+                    <div ng-if="vm.success" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        {{vm.success}}
+                        <button type="button" class="btn-close" ng-click="vm.success = ''"></button>
+                    </div>
+                    
+                    <form ng-submit="vm.startInterview()" novalidate>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="targetRole" class="form-label">Target Role *</label>
+                                    <select 
+                                        class="form-select" 
+                                        id="targetRole"
+                                        ng-model="vm.setupForm.target_role"
+                                        required
+                                        ng-disabled="vm.loading">
+                                        <option value="">Select a role</option>
+                                        <option ng-repeat="role in vm.targetRoles" value="{{role}}">
+                                            {{role}}
+                                        </option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="sessionType" class="form-label">Interview Type</label>
+                                    <select 
+                                        class="form-select" 
+                                        id="sessionType"
+                                        ng-model="vm.setupForm.session_type"
+                                        ng-disabled="vm.loading">
+                                        <option ng-repeat="type in vm.sessionTypes" value="{{type.value}}">
+                                            {{type.label}}
+                                        </option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="difficulty" class="form-label">Difficulty Level</label>
+                                    <select 
+                                        class="form-select" 
+                                        id="difficulty"
+                                        ng-model="vm.setupForm.difficulty"
+                                        ng-disabled="vm.loading">
+                                        <option ng-repeat="diff in vm.difficulties" value="{{diff.value}}">
+                                            {{diff.label}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="duration" class="form-label">Duration (minutes)</label>
+                                    <input 
+                                        type="number" 
+                                        class="form-control" 
+                                        id="duration"
+                                        ng-model="vm.setupForm.duration"
+                                        min="5"
+                                        max="120"
+                                        ng-disabled="vm.loading">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="questionCount" class="form-label">Number of Questions</label>
+                                    <input 
+                                        type="number" 
+                                        class="form-control" 
+                                        id="questionCount"
+                                        ng-model="vm.setupForm.question_count"
+                                        min="1"
+                                        max="20"
+                                        ng-disabled="vm.loading">
+                                </div>
+                                
+                                <!-- Camera Preview -->
+                                <div class="mb-3">
+                                    <label class="form-label">Camera Preview</label>
+                                    <div class="video-preview" ng-class="{'recording': vm.isRecording}">
+                                        <video 
+                                            id="userVideo" 
+                                            class="img-fluid rounded" 
+                                            style="max-height: 200px; width: 100%;"
+                                            muted
+                                            autoplay
+                                            playsinline>
+                                        </video>
+                                        <div ng-if="!vm.videoElement" class="text-muted">
+                                            <i class="fas fa-camera fa-3x mb-3"></i>
+                                            <p>Camera access required</p>
+                                            <small>Click "Start Interview" to enable camera</small>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        Make sure your camera and microphone are working properly
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <button 
+                                type="button" 
+                                class="btn btn-secondary"
+                                ng-click="vm.goToDashboard()">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Back to Dashboard
+                            </button>
+                            
+                            <div class="d-flex gap-2">
+                                <button 
+                                    type="button" 
+                                    class="btn btn-success btn-lg"
+                                    ng-click="vm.startTest()"
+                                    ng-disabled="vm.loading">
+                                    <span ng-if="vm.loading">
+                                        <i class="fas fa-spinner fa-spin me-2"></i>
+                                        Starting...
+                                    </span>
+                                    <span ng-if="!vm.loading">
+                                        <i class="fas fa-clipboard-check me-2"></i>
+                                        Start Test
+                                    </span>
+                                </button>
+                                
+                                <button 
+                                    type="submit" 
+                                    class="btn btn-primary btn-lg"
+                                    ng-disabled="vm.loading">
+                                    <span ng-if="vm.loading">
+                                        <i class="fas fa-spinner fa-spin me-2"></i>
+                                        Starting...
+                                    </span>
+                                    <span ng-if="!vm.loading">
+                                        <i class="fas fa-play me-2"></i>
+                                        Start Interview
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Interview Step -->
+    <div ng-if="vm.currentStep === 'interview'" class="row">
+        <!-- Main Interview Area -->
+        <div class="col-lg-8">
+            <!-- Session Header -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <h5 class="mb-0">{{vm.setupForm.target_role}} Interview</h5>
+                            <small class="text-muted">{{vm.setupForm.session_type | uppercase}} Session</small>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="progress mb-2">
+                                <div class="progress-bar" 
+                                     style="width: {{vm.getProgressPercentage()}}%"></div>
+                            </div>
+                            <small>Question {{vm.currentQuestionIndex + 1}} of {{vm.questions.length}}</small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button 
+                                    class="btn btn-sm btn-warning"
+                                    ng-click="vm.pauseSession()"
+                                    ng-if="vm.session.status === 'active'">
+                                    <i class="fas fa-pause"></i>
+                                </button>
+                                <button 
+                                    class="btn btn-sm btn-success"
+                                    ng-click="vm.resumeSession()"
+                                    ng-if="vm.session.status === 'paused'">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button 
+                                    class="btn btn-sm btn-danger"
+                                    ng-click="vm.completeSession()">
+                                    <i class="fas fa-stop"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Current Question -->
+            <div class="card mb-3" ng-if="vm.currentQuestion">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="{{vm.getQuestionTypeIcon(vm.currentQuestion.question_type)}} me-2"></i>
+                        {{vm.currentQuestion.question_type | uppercase}} Question
+                    </div>
+                    <div class="badge bg-primary">
+                        {{vm.formatTime(vm.questionTimeRemaining)}}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{vm.currentQuestion.question_content}}</h5>
+                    <p class="text-muted">
+                        Expected duration: {{vm.currentQuestion.expected_duration}} minutes
+                    </p>
+                    
+                    <!-- Answer Input -->
+                    <div class="mt-4">
+                        <label for="userAnswer" class="form-label">Your Answer</label>
+                        
+                        <!-- Audio Recording Controls -->
+                        <div class="mb-3" ng-if="!vm.isTestMode">
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <button 
+                                    type="button" 
+                                    class="btn btn-outline-primary"
+                                    ng-click="vm.startAudioRecording()"
+                                    ng-disabled="vm.isRecording || vm.loading || vm.session.status === 'paused'">
+                                    <i class="fas fa-microphone me-2"></i>
+                                    Start Recording
+                                </button>
+                                
+                                <button 
+                                    type="button" 
+                                    class="btn btn-outline-danger"
+                                    ng-click="vm.stopAudioRecording()"
+                                    ng-disabled="!vm.isRecording || vm.loading || vm.session.status === 'paused'">
+                                    <i class="fas fa-stop me-2"></i>
+                                    Stop Recording
+                                </button>
+                                
+                                <button 
+                                    type="button" 
+                                    class="btn btn-outline-success"
+                                    ng-click="vm.playAudioRecording()"
+                                    ng-disabled="!vm.audioBlob || vm.loading || vm.session.status === 'paused'">
+                                    <i class="fas fa-play me-2"></i>
+                                    Play Recording
+                                </button>
+                            </div>
+                            
+                            <div class="alert alert-info" ng-if="vm.isRecording">
+                                <i class="fas fa-circle text-danger me-2"></i>
+                                Recording in progress... Speak clearly into your microphone.
+                            </div>
+                            
+                            <div class="alert alert-success" ng-if="vm.audioBlob && !vm.isRecording">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Audio recorded successfully! You can play it back or submit your answer.
+                            </div>
+                        </div>
+                        
+                        <!-- Text Input -->
+                        <textarea 
+                            class="form-control" 
+                            id="userAnswer"
+                            ng-model="vm.userAnswer"
+                            rows="6"
+                            placeholder="{{vm.isTestMode ? 'Type your answer here...' : 'Type your answer here or use voice recording above...'}}"
+                            ng-disabled="vm.loading || vm.session.status === 'paused'">
+                        </textarea>
+                        
+                        <!-- Audio Player -->
+                        <audio id="audioPlayer" controls style="display: none;" class="mt-2 w-100"></audio>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between mt-3">
+                        <button 
+                            class="btn btn-outline-secondary"
+                            ng-click="vm.previousQuestion()"
+                            ng-disabled="vm.currentQuestionIndex === 0 || vm.loading">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Previous
+                        </button>
+                        
+                        <button 
+                            class="btn btn-primary"
+                            ng-click="vm.submitAnswer()"
+                            ng-disabled="!vm.userAnswer.trim() || vm.loading || vm.session.status === 'paused'">
+                            <span ng-if="vm.loading">
+                                <i class="fas fa-spinner fa-spin me-2"></i>
+                                Submitting...
+                            </span>
+                            <span ng-if="!vm.loading">
+                                <i class="fas fa-check me-2"></i>
+                                Submit Answer
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Feedback -->
+            <div ng-if="vm.quickFeedback" class="alert alert-info alert-dismissible fade show">
+                <i class="fas fa-lightbulb me-2"></i>
+                <strong>Quick Tip:</strong> {{vm.quickFeedback.quick_tip}}
+                <div class="mt-2">
+                    <small>Score: {{vm.quickFeedback.score}}/100</small>
+                </div>
+                <button type="button" class="btn-close" ng-click="vm.quickFeedback = null"></button>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Video Feed -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-video me-2"></i>
+                    Video Feed
+                </div>
+                <div class="card-body p-2">
+                    <div class="video-preview" ng-class="{'recording': vm.session.status === 'active'}">
+                        <video 
+                            id="userVideo" 
+                            class="img-fluid rounded w-100" 
+                            style="max-height: 200px;"
+                            muted
+                            autoplay
+                            playsinline>
+                        </video>
+                        <div class="feedback-overlay" ng-if="vm.session.status === 'active'">
+                            <i class="fas fa-circle text-danger"></i>
+                            Recording
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Session Info -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Session Info
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h6 class="text-muted mb-1">Time Remaining</h6>
+                                <h5 class="mb-0">{{vm.formatTime(vm.timeRemaining)}}</h5>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="text-muted mb-1">Status</h6>
+                            <span class="badge" 
+                                  ng-class="{'bg-success': vm.session.status === 'active', 
+                                           'bg-warning': vm.session.status === 'paused'}">
+                                {{vm.session.status | uppercase}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Question List -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-list me-2"></i>
+                    Questions
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div ng-repeat="question in vm.questions" 
+                             class="list-group-item"
+                             ng-class="{'active': $index === vm.currentQuestionIndex}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="{{vm.getQuestionTypeIcon(question.question_type)}} me-2"></i>
+                                    Question {{$index + 1}}
+                                </div>
+                                <div>
+                                    <i class="fas fa-check text-success" ng-if="$index < vm.currentQuestionIndex"></i>
+                                    <i class="fas fa-clock text-primary" ng-if="$index === vm.currentQuestionIndex"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feedback Step -->
+    <div ng-if="vm.currentStep === 'feedback'" class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-custom">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-trophy me-2"></i>
+                        Interview Complete!
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Overall Score -->
+                    <div class="text-center mb-4">
+                        <h2 class="display-4 text-primary">{{vm.session.overall_score}}/100</h2>
+                        <p class="lead">Overall Performance Score</p>
+                    </div>
+                    
+                    <!-- Detailed Scores -->
+                    <div class="row mb-4" ng-if="vm.sessionSummary">
+                        <div class="col-md-4 text-center">
+                            <h5>Content Quality</h5>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-info" 
+                                     style="width: {{vm.sessionSummary.average_scores.content_quality}}%"></div>
+                            </div>
+                            <span>{{vm.sessionSummary.average_scores.content_quality}}/100</span>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h5>Body Language</h5>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-warning" 
+                                     style="width: {{vm.sessionSummary.average_scores.body_language}}%"></div>
+                            </div>
+                            <span>{{vm.sessionSummary.average_scores.body_language}}/100</span>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h5>Voice & Tone</h5>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-success" 
+                                     style="width: {{vm.sessionSummary.average_scores.tone_confidence}}%"></div>
+                            </div>
+                            <span>{{vm.sessionSummary.average_scores.tone_confidence}}/100</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Improvements -->
+                    <div class="row" ng-if="vm.sessionSummary">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-arrow-up text-success me-2"></i>Areas for Improvement</h5>
+                            <ul class="list-unstyled">
+                                <li ng-repeat="improvement in vm.sessionSummary.improvements">
+                                    <i class="fas fa-chevron-right text-muted me-2"></i>
+                                    {{improvement}}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-lightbulb text-warning me-2"></i>Recommendations</h5>
+                            <ul class="list-unstyled">
+                                <li ng-repeat="recommendation in vm.sessionSummary.recommendations">
+                                    <i class="fas fa-chevron-right text-muted me-2"></i>
+                                    {{recommendation}}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <button 
+                            class="btn btn-primary"
+                            ng-click="vm.goToSetup()">
+                            <i class="fas fa-redo me-2"></i>
+                            Practice Again
+                        </button>
+                        <button 
+                            class="btn btn-outline-primary"
+                            ng-click="vm.goToDashboard()">
+                            <i class="fas fa-chart-line me-2"></i>
+                            View Progress
+                        </button>
+                        <button 
+                            class="btn btn-outline-secondary"
+                            ng-click="vm.goToDashboard()">
+                            <i class="fas fa-home me-2"></i>
+                            Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
